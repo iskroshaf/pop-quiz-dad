@@ -9,10 +9,9 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title> Pop Quiz - {{ $title }} </title>
-    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
-    <meta name="Author" content="Spruko Technologies Private Limited">
-    <meta name="keywords"
-        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <meta name="Description" content="DAD-PROJECT">
+    <meta name="Author" content="MX GROUP">
+    <meta name="keywords" content="distributed,pop-quiz,game,question">
 
     <!-- Favicon -->
     <link rel="icon" href="../assets/images/brand-logos/favicon.ico" type="image/x-icon">
@@ -47,14 +46,14 @@
                                 <div class="col-xl-12">
                                     <label for="signin-username" class="form-label text-default">Username</label>
                                     <input type="text" class="form-control form-control-lg" id="signin-username"
-                                        placeholder="Enter your username">
+                                       name="username" placeholder="Enter your username">
                                 </div>
                                 <div class="col-xl-12 mb-2">
                                     <label for="signin-password"
                                         class="form-label text-default d-block">Password</label>
                                     <div class="input-group">
                                         <input type="password" class="form-control form-control-lg" id="signin-password"
-                                            placeholder="Enter your password">
+                                           name="password" placeholder="Enter your password">
                                         <button class="btn btn-light" type="button"
                                             onclick="createpassword('signin-password',this)" id="button-addon2"><i
                                                 class="ri-eye-off-line align-middle"></i></button>

@@ -32,10 +32,18 @@ class AuthController extends Controller
     public function authentication(Request $request)
     {
         try {
-          dd($request->all());
-          
+            dd($request->all());
         } catch (Exception $e) {
-            abort(500, $e->getMessage());
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function signUpProcess(Request $request)
+    {
+        try {
+            dd($request->all());
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 }
