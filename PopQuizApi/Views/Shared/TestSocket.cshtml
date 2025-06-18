@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h2>WebSocket Client</h2>
+
+
+    <label>
+        Session ID:
+        <input type="text" id="sessionIdInput" placeholder="Enter session ID..." />
+    </label>
+    <br>
+    <button onclick="connect()">Connect</button>
+
+    <hr>
+
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <div id="log" style="margin-top:20px; border:1px solid #ccc; padding:10px;"></div>
+
+    <script>
+        let socket;
+
+        function logMessage(message) {
+            const log = document.getElementById('log');
+            log.innerHTML += `<div>${message}</div>`;
+        }
+
+        function connect() {
+          
+            const sessionId = document.getElementById("sessionIdInput").value.trim();
+
+            if (!sessionId) {
+                logMessage("⚠️ Please enter both Game ID and Session ID before connecting.");
+                return;
+            }
+
+            const url = `wss://localhost:7268/ws?sessionId=${encodeURIComponent(sessionId)}`;
+
+            socket = new WebSocket(url);
+
+            socket.onopen = () => {
+                logMessage("✅ Connected to WebSocket server");
+            };
+
+            socket.onmessage = (event) => {
+                logMessage("📥 Message from server: " + event.data);
+            };
+
+            socket.onclose = () => {
+                logMessage("❌ WebSocket connection closed");
+            };
+
+            socket.onerror = (error) => {
+                logMessage("⚠️ WebSocket error: " + error);
+            };
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const message = input.value;
+
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+                logMessage("📤 Sent: " + message);
+                input.value = "";
+            } else {
+                logMessage("⚠️ Cannot send, socket is not open");
+            }
+        }
+    </script>
+</body>
+</html>

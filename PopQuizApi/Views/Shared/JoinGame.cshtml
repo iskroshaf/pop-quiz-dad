@@ -1,0 +1,45 @@
+﻿@model PopQuizApi.Models.JoinGameRequest
+
+@{
+    ViewData["Title"] = "Join Game";
+}
+
+<form id="joinForm" method="post" action="/api/games/join">
+    @Html.AntiForgeryToken()
+    <input asp-for="SessionId" type="hidden" value="@Model.SessionId" name="SessionId" />
+    <div class="form-group">
+        <label asp-for="ParticipantName"></label>
+        <input asp-for="ParticipantName" class="form-control" required name="ParticipantName"/>
+        <span asp-validation-for="ParticipantName" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Join</button>
+</form>
+<div id="result"></div>
+
+<script>
+    document.getElementById("joinForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const name = document.querySelector('[name="ParticipantName"]').value;
+        const sessionId = document.querySelector('[name="SessionId"]').value;
+
+        const response = await fetch('/api/games/join', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                participantName: name,
+                sessionId: sessionId
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            document.getElementById("result").innerText = "✅ Joined! Session ID: " + result.sessionId;
+        } else {
+            document.getElementById("result").innerText = "❌ Failed to join: " + (result || "Unknown error");
+        }
+    });
+</script>
