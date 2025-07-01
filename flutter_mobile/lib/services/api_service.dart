@@ -4,8 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  //development, tukar ip address macheh
-  final String domainUrl = 'http://192.168.1.6:7267';
+  //development
+  // final String domainUrl = 'http://192.168.1.6:7267';
+  final String domainUrl = 'http://156.67.218.162:5000';
 
   late final String baseUrl;
 
@@ -13,10 +14,8 @@ class ApiService {
     baseUrl = domainUrl + '/api';
   }
 
-  /// Stores the joined participant details
   Map<String, dynamic>? joinedParticipant;
 
-  /// Join Game API Call
   Future<String?> joinGame(String participantName, String sessionId) async {
     final url = Uri.parse('$baseUrl/Games/join');
 
@@ -37,7 +36,6 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // Store the needed data
         joinedParticipant = {
           "participantName": data["participantName"],
           "joinTime": data["joinTime"],
@@ -71,7 +69,7 @@ class ApiService {
         url,
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
-          'Id': sessionId, // Custom header
+          'Id': sessionId,
         },
       );
 
@@ -79,12 +77,12 @@ class ApiService {
         final data = jsonDecode(response.body);
         return data;
       } else if (response.statusCode == 401) {
-        return null; // Unauthorized
+        return null;
       } else {
-        return null; // Other unexpected status
+        return null;
       }
     } catch (e) {
-      return null; // Exception handling
+      return null;
     }
   }
 
@@ -101,7 +99,7 @@ class ApiService {
         url,
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
-          'Session': sessionId, // Custom header
+          'Session': sessionId,
         },
         body: jsonEncode(body),
       );
@@ -110,7 +108,7 @@ class ApiService {
         final data = response.body;
 
         print('Response: $data');
-        return data; // success, no error message
+        return data;
       } else if (response.statusCode == 400) {
         print('Response: ' + response.body);
         return "You have answered this question.";
@@ -124,6 +122,31 @@ class ApiService {
     } catch (e) {
       print('An error occurred: $e');
       return "An error occurred: $e";
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getGameResult(String token) async {
+    final url = Uri.parse('$baseUrl/Games/result');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          'Token': token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error parsing game result: $e');
+      return null;
     }
   }
 }

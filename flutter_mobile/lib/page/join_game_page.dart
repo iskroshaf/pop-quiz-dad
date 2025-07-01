@@ -61,7 +61,6 @@ class _JoinGamePageState extends State<JoinGamePage> {
       });
 
       if (questionData != null) {
-        // Navigate to question screen with data
         Navigator.pushReplacementNamed(
           context,
           '/game_question',
@@ -117,10 +116,8 @@ class _JoinGamePageState extends State<JoinGamePage> {
           _isScanning = false;
         });
 
-        // Vibrate to indicate successful scan
         HapticFeedback.mediumImpact();
 
-        // Extract session ID from URL
         final Uri uri = Uri.parse(code);
         final String? sessionId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
 
@@ -129,7 +126,6 @@ class _JoinGamePageState extends State<JoinGamePage> {
           _gameCodeController.text = sessionId;
           // _joinGame(sessionId);
         } else {
-          // Handle invalid QR format
           print('Invalid QR code format');
         }
       }
