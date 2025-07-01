@@ -36,9 +36,47 @@
     <div class="container">
         <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
             <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
+
+                <!-- Start Alerts -->
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                {{-- Laravel validation --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0 ps-3">
+                            @foreach ($errors->all() as $e)
+                                <li>{{ $e }}</li>
+                            @endforeach
+                        </ul>
+                        <button class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                {{-- API errors --}}
+                @if (session('error_list'))
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <ul class="mb-0 ps-3">
+                            @foreach (session('error_list') as $e)
+                                <li>{{ $e }}</li>
+                            @endforeach
+                        </ul>
+                        <button class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @elseif(session('error'))
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                <!-- End Alerts -->
                 <form action="{{ route('auth-user') }}" method="POST">
                     @csrf
-                    <div class="card custom-card">
+                    <div class="card custom-card shadow-sm">
                         <div class="card-body p-5">
                             <p class="h5 fw-semibold mb-2 text-center">Sign In</p>
                             <p class="mb-4 text-muted op-7 fw-normal text-center">Welcome to Pop Quiz !</p>
@@ -46,26 +84,17 @@
                                 <div class="col-xl-12">
                                     <label for="signin-username" class="form-label text-default">Username</label>
                                     <input type="text" class="form-control form-control-lg" id="signin-username"
-                                       name="username" placeholder="Enter your username">
+                                        name="username" placeholder="Enter your username" value="{{ old('username') }}">
                                 </div>
-                                <div class="col-xl-12 mb-2">
+                                <div class="col-xl-12 mb-4">
                                     <label for="signin-password"
                                         class="form-label text-default d-block">Password</label>
                                     <div class="input-group">
                                         <input type="password" class="form-control form-control-lg" id="signin-password"
-                                           name="password" placeholder="Enter your password">
+                                            name="password" placeholder="Enter your password">
                                         <button class="btn btn-light" type="button"
                                             onclick="createpassword('signin-password',this)" id="button-addon2"><i
                                                 class="ri-eye-off-line align-middle"></i></button>
-                                    </div>
-                                    <div class="mt-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value=""
-                                                id="defaultCheck1">
-                                            <label class="form-check-label text-muted fw-normal" for="defaultCheck1">
-                                                Remember password ?
-                                            </label>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-xl-12 d-grid mt-2">

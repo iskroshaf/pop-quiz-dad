@@ -34,6 +34,58 @@
     <div class="container-lg">
         <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
             <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
+                <!-- Start Alert -->
+
+                <!-- Success Message -->
+                @if (session('success'))
+                    <div class="alert alert-success d-flex align-items-center alert-dismissible fade show"
+                        role="alert">
+                        <i class="bi bi-check-circle-fill fs-3 me-2"></i>
+                        <div>
+                            {{ session('success') }}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <!-- Laravel Validation Errors -->
+                @if ($errors->any())
+                    <div class="alert alert-danger d-flex align-items-start alert-dismissible fade show" role="alert">
+                        <div>
+                            <strong>Whoops! Something went wrong:</strong>
+                            <ul class="mt-2 mb-0 ps-3">
+                                @foreach ($errors->all() as $msg)
+                                    <li>{{ $msg }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <!-- API Validation Errors -->
+                @if (session('error_list'))
+                    <div class="alert alert-warning d-flex align-items-start alert-dismissible fade show"
+                        role="alert">
+                        <div>
+                            <strong>API Errors:</strong>
+                            <ul class="mt-2 mb-0 ps-3">
+                                @foreach (session('error_list') as $msg)
+                                    <li>{{ $msg }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @elseif(session('error'))
+                    <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show"
+                        role="alert">
+                        <div>{{ session('error') }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <!-- End Alert -->
                 <form action="{{ route('signup-user') }}" method="POST">
                     @csrf
                     <div class="card custom-card">
@@ -46,12 +98,12 @@
                                 <div class="col-xl-12">
                                     <label for="signup-username" class="form-label text-default">Username</label>
                                     <input type="text" class="form-control form-control-lg" name="username"
-                                        id="signup-username" placeholder="Enter your username">
+                                        id="signup-username" placeholder="Enter your username" value="{{ old('username') }}">
                                 </div>
                                 <div class="col-xl-12">
                                     <label for="signup-email" class="form-label text-default">Email</label>
                                     <input type="email" class="form-control form-control-lg" name="email"
-                                        id="signup-email" placeholder="Enter your email">
+                                        id="signup-email" placeholder="Enter your email" value="{{ old('email') }}">
                                 </div>
                                 <div class="col-xl-12 mb-3">
                                     <label for="signup-password" class="form-label text-default">Password</label>
