@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../services/api_service.dart';
+
 class JoinGamePage extends StatefulWidget {
   const JoinGamePage({super.key});
 
@@ -10,6 +12,7 @@ class JoinGamePage extends StatefulWidget {
 }
 
 class _JoinGamePageState extends State<JoinGamePage> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _gameCodeController = TextEditingController();
   final MobileScannerController _scannerController = MobileScannerController();
   bool _isScanning = false;
@@ -17,14 +20,19 @@ class _JoinGamePageState extends State<JoinGamePage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _gameCodeController.dispose();
     _scannerController.dispose();
     super.dispose();
   }
 
-  void _joinGame(String gameCode) async {
-    if (gameCode.trim().isEmpty) {
-      _showErrorSnackBar('Please enter a valid game code');
+  void _joinGame(String username, String gameCode) async {
+    if (gameCode.trim().isEmpty || username.trim().isEmpty) {
+      if (username.trim().isEmpty) {
+        _showErrorSnackBar('Please enter a username');
+      } else if (gameCode.trim().isEmpty) {
+        _showErrorSnackBar('Please enter a valid game code');
+      }
       return;
     }
 
@@ -32,19 +40,44 @@ class _JoinGamePageState extends State<JoinGamePage> {
       _isLoading = true;
     });
 
-    // Simulate joining game - replace with your actual logic
-    await Future.delayed(const Duration(seconds: 1));
+    final apiService = ApiService();
+    final error = await apiService.joinGame(username, gameCode);
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (error != null) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorSnackBar(error);
+      return;
+    }
 
-    // Navigate to game screen or show success
-    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => GameScreen(gameCode: gameCode)));
+    // If joinGame was successful, fetch question from /api/Games/session
+    final sessionId = apiService.joinedParticipant?['sessionId'];
+    if (sessionId != null) {
+      final questionData = await apiService.getSessionQuestion(sessionId);
 
-    // For now, just show a success message
-    _showSuccessSnackBar('Joining game: $gameCode');
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (questionData != null) {
+        // Navigate to question screen with data
+        Navigator.pushReplacementNamed(
+          context,
+          '/game_question',
+          arguments: questionData,
+        );
+      } else {
+        _showErrorSnackBar('Unauthorized or failed to fetch question.');
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorSnackBar('Failed to get session ID.');
+    }
   }
+
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -77,6 +110,7 @@ class _JoinGamePageState extends State<JoinGamePage> {
 
     if (barcodes.isNotEmpty) {
       final String? code = barcodes.first.rawValue;
+
       if (code != null && code.isNotEmpty) {
         // Stop scanning and close scanner
         setState(() {
@@ -86,12 +120,22 @@ class _JoinGamePageState extends State<JoinGamePage> {
         // Vibrate to indicate successful scan
         HapticFeedback.mediumImpact();
 
-        // Auto-fill the text field and join the game
-        _gameCodeController.text = code;
-        _joinGame(code);
+        // Extract session ID from URL
+        final Uri uri = Uri.parse(code);
+        final String? sessionId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+
+
+        if (sessionId != null && sessionId.isNotEmpty) {
+          _gameCodeController.text = sessionId;
+          // _joinGame(sessionId);
+        } else {
+          // Handle invalid QR format
+          print('Invalid QR code format');
+        }
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -157,12 +201,64 @@ class _JoinGamePageState extends State<JoinGamePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Name Code Field
+                        const Text(
+                          'Your Username',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            // color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _nameController,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            // color: Colors.white,
+                            letterSpacing: 2,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Enter username',
+                            hintStyle: const TextStyle(
+                              color: Color(0xFF8E8E93),
+                              fontWeight: FontWeight.normal,
+                              letterSpacing: 0,
+                            ),
+                            filled: true,
+                            // fillColor: const Color(0xFF2A2A3A),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF6C5CE7),
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                          ),
+                          // textCapitalization: TextCapitalization.characters,
+                          // inputFormatters: [
+                          //   UpperCaseTextFormatter(),
+                          // ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Game Code Field
                         const Text(
                           'Game Code',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            // color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -172,7 +268,7 @@ class _JoinGamePageState extends State<JoinGamePage> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            // color: Colors.white,
                             letterSpacing: 2,
                           ),
                           decoration: InputDecoration(
@@ -200,10 +296,10 @@ class _JoinGamePageState extends State<JoinGamePage> {
                               vertical: 16,
                             ),
                           ),
-                          textCapitalization: TextCapitalization.characters,
-                          inputFormatters: [
-                            UpperCaseTextFormatter(),
-                          ],
+                          // textCapitalization: TextCapitalization.characters,
+                          // inputFormatters: [
+                          //   UpperCaseTextFormatter(),
+                          // ],
                         ),
                       ],
                     ),
@@ -216,7 +312,7 @@ class _JoinGamePageState extends State<JoinGamePage> {
                     child: ElevatedButton(
                       onPressed: _isLoading
                           ? null
-                          : () => _joinGame(_gameCodeController.text),
+                          : () => _joinGame(_nameController.text, _gameCodeController.text),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6C5CE7),
                         foregroundColor: Colors.white,

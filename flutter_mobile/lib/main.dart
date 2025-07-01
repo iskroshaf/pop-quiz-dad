@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobile/page/game_question_page.dart';
 import 'package:flutter_mobile/page/join_game_page.dart';
 import 'package:flutter_mobile/page/login_page.dart';
 
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => JoinGamePage(),
+        '/game_question': (context) => GameQuestionPage(),
         // '/home': (context) => BasePage(),
       },
       // navigatorObservers: [routeObserver],
