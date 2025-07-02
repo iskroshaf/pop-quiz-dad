@@ -77,7 +77,6 @@ class _JoinGamePageState extends State<JoinGamePage> {
     }
   }
 
-
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -119,8 +118,8 @@ class _JoinGamePageState extends State<JoinGamePage> {
         HapticFeedback.mediumImpact();
 
         final Uri uri = Uri.parse(code);
-        final String? sessionId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
-
+        final String? sessionId =
+            uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
 
         if (sessionId != null && sessionId.isNotEmpty) {
           _gameCodeController.text = sessionId;
@@ -131,7 +130,6 @@ class _JoinGamePageState extends State<JoinGamePage> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +148,7 @@ class _JoinGamePageState extends State<JoinGamePage> {
                   Container(
                     margin: const EdgeInsets.only(bottom: 48),
                     child: Column(
-                      children: [
+                      children: const [
                         // Container(
                         //   width: 80,
                         //   height: 80,
@@ -171,8 +169,8 @@ class _JoinGamePageState extends State<JoinGamePage> {
                         //     size: 40,
                         //   ),
                         // ),
-                        const SizedBox(height: 16),
-                        const Text(
+                        SizedBox(height: 16),
+                        Text(
                           'Pop Quiz',
                           style: TextStyle(
                             fontSize: 32,
@@ -180,7 +178,7 @@ class _JoinGamePageState extends State<JoinGamePage> {
                             // color: Colors.white,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Join a game to get started',
                           style: TextStyle(
                             fontSize: 16,
@@ -308,7 +306,8 @@ class _JoinGamePageState extends State<JoinGamePage> {
                     child: ElevatedButton(
                       onPressed: _isLoading
                           ? null
-                          : () => _joinGame(_nameController.text, _gameCodeController.text),
+                          : () => _joinGame(
+                              _nameController.text, _gameCodeController.text),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6C5CE7),
                         foregroundColor: Colors.white,
@@ -320,22 +319,22 @@ class _JoinGamePageState extends State<JoinGamePage> {
                       ),
                       child: _isLoading
                           ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
                           : const Text(
-                        'Join Game',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                              'Join Game',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ),
 
@@ -488,9 +487,9 @@ class _JoinGamePageState extends State<JoinGamePage> {
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return TextEditingValue(
       text: newValue.text.toUpperCase(),
       selection: newValue.selection,

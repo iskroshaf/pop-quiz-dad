@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import '../services/api_service.dart';
-import 'game_result_page.dart';
 
 class GameQuestionPage extends StatefulWidget {
   const GameQuestionPage({super.key});
@@ -20,6 +20,25 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
   String? username;
   bool _isCheckingGameEnd = false;
 
+  WebSocketChannel? channel;
+  List<String> websocketLogs = [];
+
+  final List<Color> avatarColors = [
+    Colors.deepPurple,
+    Colors.teal,
+    Colors.indigo,
+    Colors.orange,
+    Colors.pink,
+    Colors.cyan,
+    Colors.green,
+    Colors.amber,
+  ];
+
+  Color getAvatarColor(String name) {
+    final hash = name.codeUnits.fold(0, (prev, curr) => prev + curr);
+    return avatarColors[hash % avatarColors.length];
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -28,7 +47,6 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
       questionData = args;
       _loadUserData();
 
-      // Check if game is already ended when page loads
       if (questionData['questionNo'] == null && !_isCheckingGameEnd) {
         print('questionNo is null on page load, handling game end');
         _isCheckingGameEnd = true;
@@ -41,12 +59,48 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
     }
   }
 
-  void _loadUserData() async {
+  Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    sessionId = prefs.getString('sessionId');
+    username = prefs.getString('participantName');
+
+    if (sessionId != null) {
+      _connectWebSocket(sessionId!);
+    }
+    setState(() {});
+  }
+
+  void _connectWebSocket(String sessionId) {
+    final url =
+        'ws://156.67.218.162:7267/ws?sessionId=${Uri.encodeComponent(sessionId)}';
+    channel = WebSocketChannel.connect(Uri.parse(url));
+
+    channel!.stream.listen(
+      (message) {
+        _logWebSocketMessageOnly(message);
+      },
+      onDone: () {
+        print('WebSocket connection closed');
+      },
+      onError: (error) {
+        print('WebSocket error: $error');
+      },
+    );
+  }
+
+  void _logWebSocketMessageOnly(String message) {
     setState(() {
-      sessionId = prefs.getString('sessionId');
-      username = prefs.getString('participantName');
+      websocketLogs.add(message);
     });
+  }
+
+  void sendWebSocketMessage(String message) {
+    if (channel != null) {
+      channel!.sink.add(message);
+      print("Sent WebSocket message: $message");
+    } else {
+      print("WebSocket not connected. Cannot send message.");
+    }
   }
 
   Future<void> _handleGameEnd() async {
@@ -69,7 +123,8 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
     } else {
       print('Failed to get game results');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Game completed but failed to load results.')),
+        const SnackBar(
+            content: Text('Game completed but failed to load results.')),
       );
       Navigator.pop(context);
     }
@@ -89,23 +144,29 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
 
     if (sessionId != null) {
       final gametaskId = questionData['id'];
-      final result = await apiService.submitGameAnswer(sessionId ?? '', gametaskId, selectedAnswer!);
+      final result = await apiService.submitGameAnswer(
+          sessionId ?? '', gametaskId, selectedAnswer!);
 
-      // Get next question
+      // ✅ Send WebSocket notification
+      final questionNumber = questionData['questionNo'] ?? '';
+      final messageToSend =
+          '$username had already answered question $questionNumber';
+      sendWebSocketMessage(messageToSend);
+
+      // ✅ Get next question
       final nextQuestion = await apiService.getSessionQuestion(sessionId!);
 
       if (nextQuestion != null && nextQuestion['questionNo'] != null) {
-        // Still have more questions with valid question number
         print('Next question found: ${nextQuestion['questionNo']}');
         setState(() {
           questionData = nextQuestion;
           selectedAnswer = null;
         });
       } else {
-        // No more questions or questionNo is null - game is complete, get results
-        print('No more questions or questionNo is null. nextQuestion: $nextQuestion');
+        print(
+            'No more questions or questionNo is null. nextQuestion: $nextQuestion');
         await _handleGameEnd();
-        return; // Exit early since we're navigating away
+        return;
       }
     }
 
@@ -128,6 +189,12 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
   }
 
   @override
+  void dispose() {
+    channel?.sink.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (questionData.isEmpty) {
       return const Scaffold(
@@ -135,7 +202,6 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
       );
     }
 
-    // If questionNo is null, show loading while handling game end
     if (questionData['questionNo'] == null) {
       return const Scaffold(
         body: Center(
@@ -160,42 +226,104 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
         child: _isSubmitting
             ? const Center(child: CircularProgressIndicator())
             : Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              questionData['question'] ?? 'No question',
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 24),
-            _buildAnswerOption("A", questionData['optionA'] ?? ''),
-            _buildAnswerOption("B", questionData['optionB'] ?? ''),
-            _buildAnswerOption("C", questionData['optionC'] ?? ''),
-            _buildAnswerOption("D", questionData['optionD'] ?? ''),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _submitAnswer,
-                child: const Text(
-                  'Submit Answer',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    questionData['question'] ?? 'No question',
+                    style: const TextStyle(fontSize: 20),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6C5CE7),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  const SizedBox(height: 24),
+                  _buildAnswerOption("A", questionData['optionA'] ?? ''),
+                  _buildAnswerOption("B", questionData['optionB'] ?? ''),
+                  _buildAnswerOption("C", questionData['optionC'] ?? ''),
+                  _buildAnswerOption("D", questionData['optionD'] ?? ''),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _submitAnswer,
+                      child: const Text(
+                        'Submit Answer',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6C5CE7),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        disabledBackgroundColor: const Color(0xFF4A4A5A),
+                      ),
+                    ),
                   ),
-                  disabledBackgroundColor: const Color(0xFF4A4A5A),
-                ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: websocketLogs.length,
+                      itemBuilder: (context, index) {
+                        final reversedLogs = websocketLogs.reversed.toList();
+                        final message = reversedLogs[index];
+
+                        if (username != null && message.contains(username!)) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final senderName = message.split(' ').first;
+                        final avatarLetter = senderName.isNotEmpty
+                            ? senderName[0].toUpperCase()
+                            : '?';
+                        final avatarColor =
+                            getAvatarColor(senderName); // 💥 grab color
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: avatarColor.withOpacity(
+                                      0.3), // matching subtle border
+                                  width: 2,
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: avatarColor,
+                                radius: 20,
+                                child: Text(
+                                  avatarLetter,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                      width: 1, color: Colors.grey.shade200),
+                                ),
+                                child: Text(
+                                  message,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -1,0 +1,2 @@
+C:/Users/Admin/Documents/project_dev/DAD/pop-quiz-dad/flutter_mobile/android/app/.cxx/RelWithDebInfo/144e6hn2/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/Admin/Documents/project_dev/DAD/pop-quiz-dad/flutter_mobile/android/app/.cxx/RelWithDebInfo/144e6hn2/arm64-v8a/CMakeFiles/rebuild_cache.dir

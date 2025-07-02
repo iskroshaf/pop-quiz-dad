@@ -36,11 +36,15 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const MyHomePage(title: 'Pop Quiz'),
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
         '/': (context) => JoinGamePage(),
+<<<<<<< Updated upstream
         '/game_question': (context) => GameQuestionPage(),
         '/game_result': (context) => GameResultPage(),
+=======
+        '/login': (context) => LoginPage(),
+>>>>>>> Stashed changes
         // '/home': (context) => BasePage(),
       },
       // navigatorObservers: [routeObserver],
