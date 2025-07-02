@@ -13,9 +13,9 @@
                 <li class="slide__category"><span class="category-name">Main</span></li>
 
                 <li class="slide">
-                    <a href="##" class="side-menu__item">
+                    <a href="{{ route('user-home') }}" class="side-menu__item active">
                         <i class="bx bx-home side-menu__icon"></i>
-                        <span class="side-menu__label">Home</span>
+                        <span class="side-menu__label">Create Quiz</span>
                     </a>
                 </li>
 

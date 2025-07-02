@@ -32,87 +32,51 @@ class AuthController extends Controller
         }
     }
 
+    // public function indexUserHome(Request $request)
+    // {
+    //     // 1) Check we have an API token in session
+    //     if (! $request->session()->has('api_token')) {
+    //         abort(401, 'Unauthorized');
+    //     }
+
+    //     // 2) If we get here, the user is “logged in”
+    //     return view('user.create-quiz', [
+    //         'title' => 'User Home'
+    //     ]);
+    // }
+
     public function indexUserHome(Request $request)
     {
-        // 1) Check we have an API token in session
+        // 1) Require login
         if (! $request->session()->has('api_token')) {
             abort(401, 'Unauthorized');
         }
 
-        // 2) If we get here, the user is “logged in”
-        return view('user.home', [
-            'title' => 'User Home'
+        // 2) Call your “get all games” endpoint
+        $baseApi = rtrim(env('SYSTEM_DEFAULT_URL'), '/');
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            'token'  => $request->session()->get('api_token'),
+        ])
+            ->withoutVerifying()
+            ->get("{$baseApi}/api/Games/get");
+
+        if (! $response->successful()) {
+            // you could flash an error or abort
+            abort(500, 'Failed to load your quizzes.');
+        }
+
+        // 3) Grab the array of quizzes
+        $quizzes = $response->json(); // an array of { title, status, startTime, ... }
+
+        // 4) Pass it into the view
+        return view('user.create-quiz', [
+            'title'   => 'User Home',
+            'quizzes' => $quizzes,
         ]);
     }
 
-    // public function authentication(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'username' => 'required|string',
-    //         'password' => 'required|string',
-    //     ]);
-
-    //     $now = now()->toIso8601String();
-    //     $userDto = [
-    //         'id'             => 0,
-    //         'username'       => $validated['username'],
-    //         'password'       => $validated['password'],
-    //         'email'          => '',
-    //         'rememberToken'  => '',
-    //         'tokenExpiredAt' => $now,
-    //         'createdAt'      => $now,
-    //         'deletedAt'      => $now,
-    //         'games'          => [],
-    //     ];
-
-    //     $loginRes = Http::withHeaders([
-    //         'Accept'       => 'application/json',
-    //         'Content-Type' => 'application/json',
-    //     ])
-    //         ->withoutVerifying() // only for localhost self-signed certs
-    //         ->withBody(json_encode($userDto), 'application/json')
-    //         ->post(env('SYSTEM_DEFAULT_URL') . '/api/auth/login');
-
-    //     if (! $loginRes->successful()) {
-    //         $errors = $this->parseApiErrors($loginRes);
-    //         return back()
-    //             ->withInput()
-    //             ->with('error_list', $errors ?: null)
-    //             ->with('error', $errors ? null : 'Login failed. Please check your credentials.');
-    //     }
-
-    //     $loginJson = $loginRes->json();
-    //     $token = $loginJson['token'] ?? $loginJson['rememberToken'] ?? null;
-
-    //     if (! $token) {
-    //         return back()->withInput()->with('error', 'No authentication token returned.');
-    //     }
-
-    //     session([
-    //         'api_token' => $token,
-    //         'api_user'  => $loginJson,    
-    //     ]);
-
-    //     $valRes = Http::withHeaders([
-    //         'Accept' => 'application/json',
-    //         'token'  => $token,
-    //     ])
-    //         ->withoutVerifying()
-    //         ->get(env('SYSTEM_DEFAULT_URL') . '/api/auth/validate');
-
-    //     if (! $valRes->successful()) {
-    //         session()->forget('api_token');
-    //         $errors = $this->parseApiErrors($valRes);
-    //         return back()
-    //             ->withInput()
-    //             ->with('error_list', $errors ?: null)
-    //             ->with('error', $errors ? null : 'Token validation failed.');
-    //     }
-
-    //     return redirect()->route('user-home')
-    //         ->with('success', 'Logged in successfully!');
-    // }
-
+    // AUTHENTICATION PROCESS - FUNCTION - OK
     public function authentication(Request $request)
     {
         // 1) Validate form inputs
