@@ -41,7 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
-<<<<<<< Updated upstream
   crypto:
     dependency: transitive
     description:
@@ -50,8 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
-=======
->>>>>>> Stashed changes
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -68,15 +65,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
-<<<<<<< Updated upstream
   ffi:
     dependency: transitive
     description:
       name: ffi
-      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
+      sha256: "289279317b4b16eb2bb7e271abccd4bf84ec9bdcbe999e278a94b804f5630418"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.3"
+    version: "2.1.4"
   file:
     dependency: transitive
     description:
@@ -85,8 +81,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
-=======
->>>>>>> Stashed changes
   flutter:
     dependency: "direct main"
     description: flutter
@@ -122,10 +116,10 @@ packages:
     dependency: transitive
     description:
       name: http_parser
-      sha256: "2aa08ce0341cc9b354a498388e30986515406668dbcc4f7c950c3e715496693b"
+      sha256: "178d74305e7866013777bab2c3d8726205dc5a4dd935297175b19a23a2e66571"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.2"
+    version: "4.1.2"
   leak_tracker:
     dependency: transitive
     description:
@@ -198,7 +192,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
-<<<<<<< Updated upstream
   path_provider_linux:
     dependency: transitive
     description:
@@ -231,8 +224,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.6"
-=======
->>>>>>> Stashed changes
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -253,10 +244,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "9f9f3d372d4304723e6136663bb291c0b93f5e4c8a4a6314347f481a33bda2b1"
+      sha256: "20cbd561f743a342c76c151d6ddb93a9ce6005751e7aa458baad3858bfbfb6ac"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.7"
+    version: "2.4.10"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -350,7 +341,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
-<<<<<<< Updated upstream
   typed_data:
     dependency: transitive
     description:
@@ -359,8 +349,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-=======
->>>>>>> Stashed changes
   vector_math:
     dependency: transitive
     description:
@@ -410,9 +398,5 @@ packages:
     source: hosted
     version: "1.1.0"
 sdks:
-  dart: ">=3.7.0-0 <4.0.0"
-<<<<<<< Updated upstream
-  flutter: ">=3.24.0"
-=======
-  flutter: ">=3.22.0"
->>>>>>> Stashed changes
+  dart: ">=3.7.0 <4.0.0"
+  flutter: ">=3.27.0"

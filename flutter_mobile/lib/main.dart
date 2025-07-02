@@ -39,12 +39,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/': (context) => JoinGamePage(),
-<<<<<<< Updated upstream
         '/game_question': (context) => GameQuestionPage(),
         '/game_result': (context) => GameResultPage(),
-=======
         '/login': (context) => LoginPage(),
->>>>>>> Stashed changes
+
         // '/home': (context) => BasePage(),
       },
       // navigatorObservers: [routeObserver],
