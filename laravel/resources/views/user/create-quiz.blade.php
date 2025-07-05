@@ -129,7 +129,7 @@
                                                     class="btn btn-sm btn-outline-danger">
                                                     View QR Code
                                                 </a>
-                                                <a href="{{ env('SYSTEM_DEFAULT_URL') . '/games/join/' . $quiz['uniqueId'] }}"
+                                                <a href="{{'/join-game/' . $quiz['uniqueId'] }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     Join URL
                                                 </a>

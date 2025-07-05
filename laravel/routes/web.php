@@ -26,7 +26,21 @@ Route::post('/create-quiz', [QuizController::class, 'createQuiz'])->name('create
 Route::get('/show-quiz-{uniqueId}', [QuizController::class, 'showQuiz'])->name('show-quiz');
 
 
+Route::get('/join-game-{id}', [QuizController::class, 'joinGame'])->name('join-Game');
 
 
 
+    Route::get('/join-game/{id}', [QuizController::class, 'showJoinForm'])
+         ->name('join-game-form');
 
+    // Submit Join → panggil API /api/Games/join
+    Route::post('/join-game', [QuizController::class, 'joinGame'])
+         ->name('join-game');
+
+    // Tampilkan soal selanjutnya
+    Route::get('/game-session/{sessionId}', [QuizController::class, 'showQuestion'])
+         ->name('game-session');
+
+    // Submit jawaban (stub; sesuaikan endpoint sebenarnya jika beda)
+    Route::post('/game-session/{sessionId}', [QuizController::class, 'submitAnswer'])
+         ->name('submit-answer');

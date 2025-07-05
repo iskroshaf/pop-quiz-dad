@@ -220,7 +220,7 @@ class QuizController extends Controller
         ];
 
         // 3) Build the payload
-        $joinPrefix = rtrim(env('SYSTEM_DEFAULT_URL').'/Games/join', '/');
+        $joinPrefix = rtrim(env('SYSTEM_DEFAULT_URL') . '/Games/join', '/');
 
         $dto = [
             'title'       => $v['quizTitle'],
@@ -313,5 +313,144 @@ class QuizController extends Controller
         } catch (Throwable $e) {
         }
         return [];
+    }
+
+    public function showJoinForm($id)
+    {
+        return view('user.join-game', [
+            'sessionId' => $id,
+            'title'     => 'Join Quiz Game',
+        ]);
+    }
+
+    // 2) Proses Join → POST /api/Games/join
+    public function joinGame(Request $request)
+    {
+        $data = $request->validate([
+            'participantName' => 'required|string',
+            'sessionId'       => 'required|string',
+        ]);
+
+        $res = Http::withHeaders([
+            'Accept'       => 'text/plain',
+            'Content-Type' => 'application/json',
+        ])
+            ->withoutVerifying()
+            ->post(env('SYSTEM_DEFAULT_URL') . '/api/Games/join', $data);
+
+        if (! $res->successful()) {
+            return back()->with('error', 'Gagal join game.');
+        }
+
+        $join = $res->json();
+
+        // SIMPAN sessionId + participantName
+        session([
+            'quiz_session_id'   => $join['sessionId'],
+            'participantName'   => $join['participantName'],
+        ]);
+
+        return redirect()
+            ->route('game-session', ['sessionId' => $join['sessionId']])
+            ->with('success', 'Berjaya join! Selamat bermain.');
+    }
+
+
+    // 3) Tampilkan soal dari GET /api/Games/session
+    public function showQuestion(Request $request, $sessionId)
+    {
+        // 1) Ambil soal / atau hasil akhir
+        $res = Http::withHeaders([
+            'accept' => '*/*',
+            'id'     => $sessionId,
+        ])
+            ->withoutVerifying()
+            ->get(env('SYSTEM_DEFAULT_URL') . '/api/Games/session');
+
+        if (! $res->successful()) {
+            abort(500, 'Gagal mengambil soal.');
+        }
+        $q = $res->json();
+
+        $myResult   = null;
+        $allResults = [];
+
+        if (array_key_exists('result', $q)) {
+            // personal result (opsional bisa pakai ?id=… juga jika perlu)
+            $resMe = Http::withHeaders([
+                'accept' => '*/*',
+                'token'  => $sessionId,
+            ])
+                ->withoutVerifying()
+                ->get(env('SYSTEM_DEFAULT_URL') . '/api/Games/result');
+
+            if ($resMe->successful()) {
+                $arrMe    = $resMe->json();
+                $myResult = $arrMe[0] ?? null;
+            }
+
+            // **ubah di sini**: tambahkan id sessionId
+            $resAll = Http::withHeaders([
+                'accept' => '*/*',
+                'token'  => $sessionId,
+            ])
+                ->withoutVerifying()
+                ->get(env('SYSTEM_DEFAULT_URL') . '/api/Games/result?all=true');
+
+                
+            if ($resAll->successful()) {
+                $allResults = $resAll->json();
+            }
+
+            //    var_dump($resMe->json());
+            //         die;
+        }
+
+        return view('user.session', [
+            'question'   => $q,
+            'sessionId'  => $sessionId,
+            'me'         => session('participantName'),
+            'myResult'   => $myResult,
+            'allResults' => $allResults,
+        ]);
+    }
+
+
+
+
+
+
+    // 4) Submit jawaban (endpoint disesuaikan; ini stub contoh)
+    public function submitAnswer(Request $request, $sessionId)
+    {
+        // 1) Validasi input sesuai payload API
+        $data = $request->validate([
+            'gametaskId'     => 'required|integer',
+            'selectedAnswer' => 'required|string',
+        ]);
+
+        // 2) Siapkan payload
+        $payload = [
+            'gametaskId'     => $data['gametaskId'],
+            'selectedAnswer' => $data['selectedAnswer'],
+        ];
+
+        // 3) Panggil API dengan header 'session'
+        $res = Http::withHeaders([
+            'accept'       => '*/*',
+            'session'      => $sessionId,
+            'Content-Type' => 'application/json',
+        ])
+            ->withoutVerifying()
+            ->post(env('SYSTEM_DEFAULT_URL') . '/api/Games/answer', $payload);
+
+        if (! $res->successful()) {
+            return back()->with('error', 'Gagal submit jawaban.');
+        }
+
+        // 4) Redirect ke soal berikutnya
+        return redirect()
+            ->route('game-session', ['sessionId' => $sessionId])
+            ->with('success', 'Jawaban diterima, soal berikutnya...');
     }
 }
