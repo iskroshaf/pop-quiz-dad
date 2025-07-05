@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const MyHomePage(title: 'Pop Quiz'),
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
         '/': (context) => JoinGamePage(),
         '/game_question': (context) => GameQuestionPage(),

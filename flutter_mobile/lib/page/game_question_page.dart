@@ -89,8 +89,16 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
   }
 
   void _logWebSocketMessageOnly(String message) {
+    // Don't log your own messages
+    if (username != null && message.contains(username!)) return;
+
     setState(() {
       websocketLogs.add(message);
+
+      // Keep only the last 3 messages (excluding your own, already filtered)
+      if (websocketLogs.length > 3) {
+        websocketLogs = websocketLogs.sublist(websocketLogs.length - 3);
+      }
     });
   }
 
@@ -147,13 +155,11 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
       final result = await apiService.submitGameAnswer(
           sessionId ?? '', gametaskId, selectedAnswer!);
 
-      // ✅ Send WebSocket notification
       final questionNumber = questionData['questionNo'] ?? '';
       final messageToSend =
           '$username had already answered question $questionNumber';
       sendWebSocketMessage(messageToSend);
 
-      // ✅ Get next question
       final nextQuestion = await apiService.getSessionQuestion(sessionId!);
 
       if (nextQuestion != null && nextQuestion['questionNo'] != null) {
@@ -276,8 +282,7 @@ class _GameQuestionPageState extends State<GameQuestionPage> {
                         final avatarLetter = senderName.isNotEmpty
                             ? senderName[0].toUpperCase()
                             : '?';
-                        final avatarColor =
-                            getAvatarColor(senderName); // 💥 grab color
+                        final avatarColor = getAvatarColor(senderName);
 
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
