@@ -153,70 +153,70 @@ class QuizController extends Controller
                 "optionD"  => "DELETE",
                 "answer"   => "GET",
             ],
-            [
-                "question" => "Which HTTP status code indicates a successful request?",
-                "optionA"  => "200",
-                "optionB"  => "400",
-                "optionC"  => "404",
-                "optionD"  => "500",
-                "answer"   => "200",
-            ],
-            [
-                "question" => "What is the correct HTTP method to update a resource?",
-                "optionA"  => "GET",
-                "optionB"  => "DELETE",
-                "optionC"  => "POST",
-                "optionD"  => "PUT",
-                "answer"   => "PUT",
-            ],
-            [
-                "question" => "Which status code indicates resource not found?",
-                "optionA"  => "403",
-                "optionB"  => "404",
-                "optionC"  => "201",
-                "optionD"  => "500",
-                "answer"   => "404",
-            ],
-            [
-                "question" => "Which of the following formats is commonly used in REST APIs for data exchange?",
-                "optionA"  => "XML",
-                "optionB"  => "CSV",
-                "optionC"  => "JSON",
-                "optionD"  => "HTML",
-                "answer"   => "JSON",
-            ],
-            [
-                "question" => "What does the POST method usually do in REST?",
-                "optionA"  => "Retrieves a resource",
-                "optionB"  => "Deletes a resource",
-                "optionC"  => "Updates a resource",
-                "optionD"  => "Creates a resource",
-                "answer"   => "Creates a resource",
-            ],
-            [
-                "question" => "Which HTTP method is idempotent?",
-                "optionA"  => "GET",
-                "optionB"  => "PUT",
-                "optionC"  => "DELETE",
-                "optionD"  => "All of the above",
-                "answer"   => "All of the above",
-            ],
-            [
-                "question" => "What status code is returned after creating a resource?",
-                "optionA"  => "200",
-                "optionB"  => "201",
-                "optionC"  => "202",
-                "optionD"  => "204",
-                "answer"   => "201",
-            ],
-            [
-                "question" => "Which principle is NOT part of REST?",
-                "optionA"  => "Stateless interactions",
-                "optionB"  => "Client-server architecture",
-                "optionC"  => "Multiple layered architecture",
-                "optionD"  => "Server-side session tracking",
-                "answer"   => "Server-side session tracking",
-            ],
+            // [
+            //     "question" => "Which HTTP status code indicates a successful request?",
+            //     "optionA"  => "200",
+            //     "optionB"  => "400",
+            //     "optionC"  => "404",
+            //     "optionD"  => "500",
+            //     "answer"   => "200",
+            // ],
+            // [
+            //     "question" => "What is the correct HTTP method to update a resource?",
+            //     "optionA"  => "GET",
+            //     "optionB"  => "DELETE",
+            //     "optionC"  => "POST",
+            //     "optionD"  => "PUT",
+            //     "answer"   => "PUT",
+            // ],
+            // [
+            //     "question" => "Which status code indicates resource not found?",
+            //     "optionA"  => "403",
+            //     "optionB"  => "404",
+            //     "optionC"  => "201",
+            //     "optionD"  => "500",
+            //     "answer"   => "404",
+            // ],
+            // [
+            //     "question" => "Which of the following formats is commonly used in REST APIs for data exchange?",
+            //     "optionA"  => "XML",
+            //     "optionB"  => "CSV",
+            //     "optionC"  => "JSON",
+            //     "optionD"  => "HTML",
+            //     "answer"   => "JSON",
+            // ],
+            // [
+            //     "question" => "What does the POST method usually do in REST?",
+            //     "optionA"  => "Retrieves a resource",
+            //     "optionB"  => "Deletes a resource",
+            //     "optionC"  => "Updates a resource",
+            //     "optionD"  => "Creates a resource",
+            //     "answer"   => "Creates a resource",
+            // ],
+            // [
+            //     "question" => "Which HTTP method is idempotent?",
+            //     "optionA"  => "GET",
+            //     "optionB"  => "PUT",
+            //     "optionC"  => "DELETE",
+            //     "optionD"  => "All of the above",
+            //     "answer"   => "All of the above",
+            // ],
+            // [
+            //     "question" => "What status code is returned after creating a resource?",
+            //     "optionA"  => "200",
+            //     "optionB"  => "201",
+            //     "optionC"  => "202",
+            //     "optionD"  => "204",
+            //     "answer"   => "201",
+            // ],
+            // [
+            //     "question" => "Which principle is NOT part of REST?",
+            //     "optionA"  => "Stateless interactions",
+            //     "optionB"  => "Client-server architecture",
+            //     "optionC"  => "Multiple layered architecture",
+            //     "optionD"  => "Server-side session tracking",
+            //     "answer"   => "Server-side session tracking",
+            // ],
         ];
 
         // 3) Build the payload
@@ -331,6 +331,7 @@ class QuizController extends Controller
             'sessionId'       => 'required|string',
         ]);
 
+        // Panggil endpoint join
         $res = Http::withHeaders([
             'Accept'       => 'text/plain',
             'Content-Type' => 'application/json',
@@ -338,22 +339,31 @@ class QuizController extends Controller
             ->withoutVerifying()
             ->post(env('SYSTEM_DEFAULT_URL') . '/api/Games/join', $data);
 
+        // Jika gagal, ambil body & status, kirim ke session
         if (! $res->successful()) {
-            return back()->with('error', 'Gagal join game.');
+            $status = $res->status();
+            $body   = $res->body();
+
+            return back()
+                ->withInput()
+                ->with('error', "Gagal join game (HTTP {$status}).")
+                ->with('server_response', $body);
         }
 
+        // Sukses → parse JSON
         $join = $res->json();
 
-        // SIMPAN sessionId + participantName
+        // Simpan sessionId + participantName
         session([
-            'quiz_session_id'   => $join['sessionId'],
-            'participantName'   => $join['participantName'],
+            'quiz_session_id' => $join['sessionId'],
+            'participantName' => $join['participantName'],
         ]);
 
         return redirect()
             ->route('game-session', ['sessionId' => $join['sessionId']])
             ->with('success', 'Berjaya join! Selamat bermain.');
     }
+
 
 
     // 3) Tampilkan soal dari GET /api/Games/session
@@ -397,7 +407,7 @@ class QuizController extends Controller
                 ->withoutVerifying()
                 ->get(env('SYSTEM_DEFAULT_URL') . '/api/Games/result?all=true');
 
-                
+
             if ($resAll->successful()) {
                 $allResults = $resAll->json();
             }
