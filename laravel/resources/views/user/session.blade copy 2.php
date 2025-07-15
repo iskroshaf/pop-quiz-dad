@@ -31,73 +31,58 @@
 
             <!-- Main Content -->
             <div class="row g-4">
-                {{-- Participants Sidebar (visible when quiz is completed) --}}
-                @if (!empty($allResults))
-                    <div class="col-lg-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-gradient-primary text-white p-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="bi bi-people-fill me-2 fs-5"></i>
-                                    <h6 class="mb-0">Participants</h6>
-                                </div>
+                {{-- Participants Sidebar --}}
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-gradient-primary text-white p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-people-fill me-2 fs-5"></i>
+                                <h6 class="mb-0">Participants</h6>
                             </div>
-                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
-                                @if (empty($allResults))
-                                    <div class="text-center p-4 text-muted">
-                                        <i class="bi bi-info-circle fs-4"></i>
-                                        <p class="mb-0">Result will show after you complete the QUIZ!</p>
-                                    </div>
-                                @else
-                                    <div class="list-group list-group-flush">
-                                        @foreach ($allResults as $r)
-                                            <div class="list-group-item list-group-item-action {{ $r['participantName'] === $me ? 'active' : '' }}">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="me-3">
-                                                            <span class="badge bg-white text-dark rounded-circle p-2">
-                                                                {{ $loop->iteration }}
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="mb-0">{{ $r['participantName'] }}</h6>
-                                                            <small class="text-muted">
-                                                                Progress: {{ $r['progress'] }}/{{ $r['progress'] }}
-                                                            </small>
-                                                        </div>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <span class="badge bg-success rounded-pill">
-                                                            {{ $r['correctCount'] }} ✔️
+                        </div>
+                        <div class="card-body p-0">
+                            @if (empty($allResults))
+                                <div class="text-center p-4 text-muted">
+                                    <i class="bi bi-info-circle fs-4"></i>
+                                    <p class="mb-0">Result will show after you complete the QUIZ!</p>
+                                </div>
+                            @else
+                                <div class="list-group list-group-flush">
+                                    @foreach ($allResults as $r)
+                                        <div class="list-group-item list-group-item-action 
+                                            {{ $r['participantName'] === $me ? 'active' : '' }}">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <span class="badge bg-white text-dark rounded-circle p-2">
+                                                            {{ $loop->iteration }}
                                                         </span>
-                                                        <div class="mt-1">
-                                                            <small class="{{ $r['participantName'] === $me ? 'text-white' : 'text-muted' }}">
-                                                                {{ number_format($r['accuracy'] * 100, 0) }}% accuracy
-                                                            </small>
-                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ $r['participantName'] }}</h6>
+                                                        <small class="text-muted">
+                                                            Progress: {{ $r['progress'] }}/{{ $r['progress'] }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-success rounded-pill">
+                                                        {{ $r['correctCount'] }} ✔️
+                                                    </span>
+                                                    <div class="mt-1">
+                                                        <small class="{{ $r['participantName'] === $me ? 'text-white' : 'text-muted' }}">
+                                                            {{ number_format($r['accuracy'] * 100, 0) }}% accuracy
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
-                @else
-                    {{-- WebSocket Status (when no participants) --}}
-                   <div class="col-lg-4">
-                        <div class="card border-0 shadow-none">
-                            <div class="card-header bg-gradient-primary text-white p-3">
-                                <h6 class="mb-0">WebSocket Status</h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <div id="log" style="margin-top: 0; padding: 0; border: none; background: transparent;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                @endif
+                </div>
 
                 {{-- Main Quiz Content --}}
                 <div class="col-lg-8">
@@ -175,6 +160,15 @@
                                     </button>
                                 </form>
                             @endif
+
+                            <!-- WebSocket Status Card -->
+                            <div class="card mt-4 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title">WebSocket Status</h5>
+                                    <div id="log" style="margin-top:20px; padding:10px;">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -211,7 +205,7 @@
 
         function logMessage(message) {
             const log = document.getElementById('log');
-            log.innerHTML += `<div class="p-2">${message}</div>`;
+            log.innerHTML += `<div class="mb-2">${message}</div>`;
         }
 
         function createAvatar(participantName) {
@@ -254,6 +248,7 @@
             const participantName = '{{ $sessionCodeName }}';
             let no = '{{$questionNo}}';
 
+
             if (socket && socket.readyState === WebSocket.OPEN) {
                 const avatar = createAvatar(participantName);
                 let message = "";
@@ -265,6 +260,7 @@
                 }
 
                 socket.send(message);
+                // logMessage(message); 
             } else {
                 logMessage("⚠️ Cannot send, WebSocket is not open");
             }
