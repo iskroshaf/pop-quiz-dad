@@ -125,6 +125,11 @@ class QuizController extends Controller
     //         ->with('quiz_data', $quiz);
     // }
 
+    public function showHomePage()
+    {
+        return view('index');
+    }
+
     public function createQuiz(Request $request)
     {
         // 1) Laravel‐side validation
@@ -463,4 +468,52 @@ class QuizController extends Controller
             ->route('game-session', ['sessionId' => $sessionId])
             ->with('success', 'Jawaban diterima, soal berikutnya...');
     }
+
+    public function joinGameGuest(Request $request)
+{
+    // Validate the input (username and gameCode)
+        $data = $request->validate([
+            'username' => 'required|string|',
+            'gameCode' => 'required|string|', // You can adjust this to your actual validation logic
+        ]);
+
+        // Prepare the data to send to the API (no session needed for guest users)
+        $payload = [
+            'participantName' => $data['username'],  // Participant's name
+            'sessionId'       => $data['gameCode'],  // Game session code
+        ];
+
+        // Make the API call to join the game
+        $res = Http::withHeaders([
+            'Accept'       => 'application/json',
+            'Content-Type' => 'application/json',
+        ])
+        ->withoutVerifying()
+        ->post(env('SYSTEM_DEFAULT_URL') . '/api/Games/join', $payload);
+
+        // Handle failure
+        if (!$res->successful()) {
+            $status = $res->status();
+            $body = $res->body();
+
+            return back()
+                ->withInput()
+                ->with('error', "Failed to join the game (HTTP {$status}).")
+                ->with('server_response', $body);
+        }
+
+        // On success, save session and redirect to game session
+        $join = $res->json();
+
+        session([
+            'quiz_session_id' => $join['sessionId'],
+            'participantName' => $join['participantName'],
+        ]);
+
+        return redirect()
+            ->route('game-session', ['sessionId' => $join['sessionId']])
+            ->with('success', 'Successfully joined the game! Good luck.');
+
+}
+
 }
