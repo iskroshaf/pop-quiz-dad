@@ -14,8 +14,8 @@
             <!-- Page Header -->
             <div class="d-flex flex-column flex-md-row align-items-center justify-content-between my-4">
                 <div class="mb-3 mb-md-0">
-                    <h1 class="page-title fw-semibold fs-3 mb-2">Welcome back, {{ session('api_user.username') }}!</h1>
-                    <p class="text-muted mb-0">Quiz Game Session</p>
+                    <h1 class="page-title fw-semibold fs-3 mb-2">Quiz Game Session</h1>
+                    <p class="text-muted mb-0">Answer the questions</p>
                 </div>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">

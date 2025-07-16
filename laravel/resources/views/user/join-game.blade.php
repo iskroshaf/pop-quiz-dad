@@ -7,12 +7,10 @@
             <!-- Page Header -->
             <div class="d-flex flex-column flex-md-row align-items-center justify-content-between my-4">
                 <div class="mb-3 mb-md-0">
-                    <h1 class="page-title fw-semibold fs-3 mb-2">Welcome back, {{ session('api_user.username') }}!</h1>
-                    <p class="text-muted mb-0">Ready to join an exciting quiz game?</p>
+                    <h1 class="page-title fw-semibold fs-3 mb-2">Join Your Quiz Now !</h1>
                 </div>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Join Quiz</li>
                     </ol>
                 </nav>

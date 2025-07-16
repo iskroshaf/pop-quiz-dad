@@ -51,7 +51,7 @@
 
 
              <!-- Start::header-element -->
-             @if (session('api_user.username'))
+             @if (session('api_user.username') && session('api_token'))
                  <div class="header-element">
                      <!-- Start::header-link|dropdown-toggle -->
                      <a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile"
