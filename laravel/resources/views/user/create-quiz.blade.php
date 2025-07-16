@@ -60,7 +60,7 @@
                         @csrf
                         <div class="card shadow-lg">
                             <div class="card-body">
-                            <h5 class="card-title mb-4">Create Quizzes</h5>
+                                <h5 class="card-title mb-4">Create Quizzes</h5>
 
                                 <div class="row">
                                     <div class="col-sm-12">
@@ -125,11 +125,11 @@
                                                 {{ $quiz['status'] ? 'Active' : 'Inactive' }}
                                             </small>
                                             <div class="mt-2">
-                                                <a href="{{ route('show-quiz', ['uniqueId' => $quiz['uniqueId']]) }}"
+                                                <a data-bs-toggle="modal" data-bs-target="#qrModal-{{ $quiz['uniqueId'] }}"
                                                     class="btn btn-sm btn-outline-danger">
                                                     View QR Code
                                                 </a>
-                                                <a href="{{ env('SYSTEM_DEFAULT_URL') . '/games/join/' . $quiz['uniqueId'] }}"
+                                                <a href="{{ '/join-game/' . $quiz['uniqueId'] }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     Join URL
                                                 </a>
@@ -137,6 +137,23 @@
                                                     <code>{{ $quiz['uniqueId'] }}</code></span>
                                             </div>
                                         </li>
+
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="qrModal-{{ $quiz['uniqueId'] }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog      ">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body text-center">
+                                                        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ 'http://127.0.0.1/join-game/' . $quiz['uniqueId'] }}&amp;size=400x400"
+                                                            alt="qrcode" title="{{ $quiz['uniqueId'] }}" class="img-fluid" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endforeach
                                 </ul>
                             @else
@@ -148,6 +165,8 @@
                 </div>
             </div>
             <!--End::Crate Quiz Form -->
+
+
 
         </div>
     </div>

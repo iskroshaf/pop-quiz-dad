@@ -51,7 +51,7 @@
 
 
              <!-- Start::header-element -->
-             @if (session('api_user.username'))
+             @if (session('api_user.username') && session('api_token'))
                  <div class="header-element">
                      <!-- Start::header-link|dropdown-toggle -->
                      <a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile"
@@ -76,12 +76,6 @@
                      <!-- End::header-link|dropdown-toggle -->
                      <ul class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end"
                          aria-labelledby="mainHeaderProfile">
-                         <li>
-                             <a class="dropdown-item d-flex" href="profile.html">
-                                 <i class="ti ti-user-circle fs-18 me-2 op-7"></i>
-                                 Profile
-                             </a>
-                         </li>
                          <li>
                              <a class="dropdown-item d-flex" href="{{ route('user-logout') }}">
                                  <i class="ti ti-logout fs-18 me-2 op-7"></i>

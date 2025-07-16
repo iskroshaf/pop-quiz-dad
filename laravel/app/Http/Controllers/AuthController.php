@@ -45,36 +45,42 @@ class AuthController extends Controller
     //     ]);
     // }
 
-    public function indexUserHome(Request $request)
-    {
-        // 1) Require login
-        if (! $request->session()->has('api_token')) {
-            abort(401, 'Unauthorized');
-        }
+public function indexUserHome(Request $request)
+{
+    if (! $request->session()->has('api_token')) {
+        return redirect('/signin')->with('error', 'Please login first.');
+    }
 
-        // 2) Call your “get all games” endpoint
-        $baseApi = rtrim(env('SYSTEM_DEFAULT_URL'), '/');
+    $baseApi = rtrim(env('SYSTEM_DEFAULT_URL'), '/');
+
+    try {
         $response = Http::withHeaders([
             'Accept' => 'application/json',
             'token'  => $request->session()->get('api_token'),
         ])
-            ->withoutVerifying()
-            ->get("{$baseApi}/api/Games/get");
+        ->withoutVerifying()
+        ->get("{$baseApi}/api/Games/get");
+
+        if ($response->status() === 401) {
+            $request->session()->forget(['api_token', 'api_user']);
+            return redirect('/signin')->with('error', 'Session expired. Please log in again.');
+        }
 
         if (! $response->successful()) {
-            // you could flash an error or abort
             abort(500, 'Failed to load your quizzes.');
         }
 
-        // 3) Grab the array of quizzes
-        $quizzes = $response->json(); // an array of { title, status, startTime, ... }
+        $quizzes = $response->json();
 
-        // 4) Pass it into the view
         return view('user.create-quiz', [
             'title'   => 'User Home',
             'quizzes' => $quizzes,
         ]);
+    } catch (\Exception $e) {
+        // Tangani Guzzle error (cURL 18 dan lainnya)
+        return redirect('/signin')->with('error', 'Session Expired ');
     }
+}
 
     // AUTHENTICATION PROCESS - FUNCTION - OK
     public function authentication(Request $request)

@@ -4,7 +4,6 @@
            <span class="text-muted"> Copyright © <span id="year">{{ date('Y') }}</span>
                <a href="javascript:void(0);" class="text-dark fw-semibold">Pop Quiz</a>.
                All rights reserved
-               ({{ session('api_token') }})
            </span>
        </div>
    </footer>

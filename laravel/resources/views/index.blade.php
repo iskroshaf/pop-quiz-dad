@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Pop Quiz - {{ $title }}</title>
+    <title>Pop Quiz</title>
     <meta name="Description" content="DAD-PROJECT">
     <meta name="Author" content="MX GROUP">
     <meta name="keywords" content="distributed,pop-quiz,game,question">
@@ -75,46 +75,42 @@
                 <!-- End Alerts -->
 
                 <!-- Start Authentication Card -->
-                <form action="{{ route('auth-user') }}" method="POST">
-                    @csrf
-                    <div class="card custom-card shadow-sm">
-                        <div class="card-body p-5">
-                            <p class="h5 fw-semibold mb-2 text-center">Sign In</p>
-                            <p class="mb-4 text-muted op-7 fw-normal text-center">Welcome to Pop Quiz!</p>
+                <div class="card custom-card shadow-sm">
+                    <div class="card-body p-5">
+                        <p class="h5 fw-semibold mb-2 text-center">Quick Join Quiz</p>
+                        <p class="mb-4 text-muted op-7 fw-normal text-center">Already have a quiz code? Fill in the form below and quickly join the quiz!.</p>
+                        
+                        <form action="{{ route('join-game-guest') }}" method="POST">
+                            @csrf
                             <div class="row gy-3">
                                 <div class="col-xl-12">
-                                    <label for="signin-username" class="form-label text-default">Username</label>
-                                    <input type="text" class="form-control form-control-lg" id="signin-username"
-                                        name="username" placeholder="Enter your username" value="{{ old('username') }}">
+                                    <label for="username" class="form-label">Your Name</label>
+                                    <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="Enter your name" value="{{ old('username') }}">
                                 </div>
-                                <div class="col-xl-12 mb-4">
-                                    <label for="signin-password"
-                                        class="form-label text-default d-block">Password</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control form-control-lg" id="signin-password"
-                                            name="password" placeholder="Enter your password">
-                                        <button class="btn btn-light" type="button"
-                                            onclick="createpassword('signin-password',this)" id="button-addon2"><i
-                                                class="ri-eye-off-line align-middle"></i></button>
-                                    </div>
+                                <div class="col-xl-12">
+                                    <label for="gameCode" class="form-label">Game Code</label>
+                                    <input type="text" class="form-control form-control-lg" id="gameCode" name="gameCode" placeholder="Enter Game Code" value="{{ old('gameCode') }}">
                                 </div>
                                 <div class="col-xl-12 d-grid mt-2">
-                                    <button type="submit" class="btn btn-lg btn-primary">Sign In</button>
+                                    <button type="submit" class="btn btn-lg btn-primary">Join Game</button>
                                 </div>
                             </div>
+
+                            <div class="text-center">
+                                <p class="fs-12 text-muted mt-3">Already Have an account? <a
+                                        href="{{ route('signin-page') }}" class="text-primary">Sign In</a></p>
+                            </div>
+                            
                             <div class="text-center">
                                 <p class="fs-12 text-muted mt-3">Don't have an account? <a
                                         href="{{ route('signup-page') }}" class="text-primary">Sign Up</a></p>
                             </div>
 
-                            <div class="text-center">
-                                <p class="fs-12 text-muted mt-3">Go To <a
-                                        href="{{ route('welcome') }}" class="text-primary">Home</a></p>
-                            </div>
-                        </div>
+                            
+                        </form>
                     </div>
-                </form>
-                <!-- End Authentication Card -->
+                </div>
+                <!-- End Join Game Section -->
 
 
             </div>
