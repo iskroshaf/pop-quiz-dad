@@ -125,7 +125,7 @@
                                                 {{ $quiz['status'] ? 'Active' : 'Inactive' }}
                                             </small>
                                             <div class="mt-2">
-                                                <a data-bs-toggle="modal" data-bs-target="#qrModal"
+                                                <a data-bs-toggle="modal" data-bs-target="#qrModal-{{ $quiz['uniqueId'] }}"
                                                     class="btn btn-sm btn-outline-danger">
                                                     View QR Code
                                                 </a>
@@ -139,8 +139,7 @@
                                         </li>
 
                                         <!-- Modal -->
-                                        <div class="modal fade" id="qrModal" tabindex="-1"
-                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal fade" id="qrModal-{{ $quiz['uniqueId'] }}" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog      ">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
